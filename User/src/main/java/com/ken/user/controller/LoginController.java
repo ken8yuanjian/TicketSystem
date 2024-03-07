@@ -39,8 +39,6 @@ public class LoginController {
         Subject subject = SecurityUtils.getSubject();
         Session session = subject.getSession();
         session.touch();
-
-        Object obj = null;
         SessionData sessionData = new SessionData(session.getId().toString(),
                 session.getLastAccessTime().toString(),"test");
         return ResultBase.success(sessionData);
