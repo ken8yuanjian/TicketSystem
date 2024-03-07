@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ken.ticket.dao.FilmDao">
+    <!-- select 的返回值 需要加上类路径，不能直接是类名，如Film-->
+    <select id="byId" resultType="com.ken.common.entity.Film">
+        select * from film where id=#{id}
+    </select>
+    <!-- select 的输入参数，如果是一个对象，直接使用属性就可以-->
+    <select id="list" resultType="com.ken.common.entity.Film" >
+        select * from film
+        <!-- 动态参数 -->
+        <where>
+            <if test="id!=null"> or id= #{id} </if>
+            <if test="name!=null">or name like #{name} </if>
+            <if test="descr!=null">or descr like #{descr} </if>
+        </where>
+    </select>
+    <!-- insert 中如有自动增加的字段，会自动赋值入参-->
+    <insert id="insert"  useGeneratedKeys="true" keyProperty="id">
+        insert into film(name,descr) values(#{name},#{descr})
+    </insert>
+
+    <!-- 多数据库适配示例，SQL中如果有数据库特别的语法，需要对数据库做单独适配，
+    如果没有做适配，默认调用没有databaseId 属性的sql，否则，如果适配了，mybatis
+    会自动调用制定数据库的适配sql -->
+    <!-- 没适配调用默认的-->
+    <select id="testDBAdapter" resultType="com.ken.common.entity.Film" >
+        select * from film
+    </select>
+    <!-- 专门适配SQL Server的sql-->
+    <select id="testDBAdapter" resultType="com.ken.common.entity.Film" databaseId="sqlserver">
+        select Id id,Name name,Descr descr from film
+    </select>
+
+</mapper>

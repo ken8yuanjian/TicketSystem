@@ -1,0 +1,59 @@
+node {
+    stage('pull code from git repositroy') {
+        //应用变量使用${}
+        checkout scmGit(branches: [[name: '${tag}']], extensions: [], userRemoteConfigs: [[url: 'http://192.168.121.100:8929/root/ticketsystem.git']])
+    }
+    stage('maven build package') {
+        //mvn 没有x权限时需要赋权限，否则无法构建
+        //pipeline 中sh 'cd XX'命令 在另一个 sh 中无效，每个sh是一个单独进程，如需多个命令批量执行用'''  ... '''连接
+        sh '''
+        cd GateWay
+        pwd
+        /var/jenkins_home/maven/bin/mvn clean package -DskipTests
+        cd ..
+        '''
+    }
+    stage('publish jar to remoteServer') {
+        sshPublisher(publishers: [sshPublisherDesc(configName: 'CentOS.7.64_01',
+        transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '',
+        execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false,
+        patternSeparator: '[, ]+', remoteDirectory: '', remoteDirectorySDF: false,
+        removePrefix: 'GateWay/target', sourceFiles: 'GateWay/target/GateWay-1.0.0.jar')],
+        usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+
+        sshPublisher(publishers: [sshPublisherDesc(configName: 'CentOS.7.64_01',
+        transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '',
+        execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false,
+        patternSeparator: '[, ]+', remoteDirectory: '', remoteDirectorySDF: false,
+        removePrefix: 'GateWay', sourceFiles: 'GateWay/Dockerfile')],
+        usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+    }
+    def remoteServer = [:]
+    remoteServer.name = 'CentOS.7.64_01'
+    remoteServer.host = '192.168.121.100'
+    remoteServer.user = 'root'
+    remoteServer.password = '123456'
+    remoteServer.allowAnyHosts = true
+    stage('build docker on remoteServer ') {
+        sshCommand remote: remoteServer, command: '''
+        app=gateway
+        resultStr=$(docker ps |grep "$app")
+        if [ -n "$resultStr" ]; then
+            docker stop $app
+        fi
+        resultStr=$(docker ps -a |grep "$app")
+        if [ -n "$resultStr" ]; then
+            docker rm $app
+        fi
+        resultStr=$(docker images |grep "$app")
+        if [ -n "$resultStr" ]; then
+            docker rmi $app
+        fi
+        cd /usr/local/deploy
+        docker build -t $app ./
+        '''
+    }
+    stage('run docker on remoteServer ') {
+        sshCommand remote: remoteServer, command: 'docker run --name gateway --restart=always -p 8900:8900 -d gateway'
+    }
+}

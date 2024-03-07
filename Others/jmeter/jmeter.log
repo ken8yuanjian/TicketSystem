@@ -1,0 +1,58 @@
+2023-12-07 11:54:54,186 INFO o.a.j.u.JMeterUtils: Setting Locale to en_EN
+2023-12-07 11:54:54,196 INFO o.a.j.JMeter: Loading user properties from: D:\Program Files\apache-jmeter-5.6.2\bin\user.properties
+2023-12-07 11:54:54,197 INFO o.a.j.JMeter: Loading system properties from: D:\Program Files\apache-jmeter-5.6.2\bin\system.properties
+2023-12-07 11:54:54,201 INFO o.a.j.JMeter: Copyright (c) 1998-2023 The Apache Software Foundation
+2023-12-07 11:54:54,201 INFO o.a.j.JMeter: Version 5.6.2
+2023-12-07 11:54:54,201 INFO o.a.j.JMeter: java.version=1.8.0_251
+2023-12-07 11:54:54,201 INFO o.a.j.JMeter: java.vm.name=Java HotSpot(TM) 64-Bit Server VM
+2023-12-07 11:54:54,201 INFO o.a.j.JMeter: os.name=Windows 10
+2023-12-07 11:54:54,202 INFO o.a.j.JMeter: os.arch=amd64
+2023-12-07 11:54:54,202 INFO o.a.j.JMeter: os.version=10.0
+2023-12-07 11:54:54,202 INFO o.a.j.JMeter: file.encoding=GBK
+2023-12-07 11:54:54,202 INFO o.a.j.JMeter: java.awt.headless=true
+2023-12-07 11:54:54,202 INFO o.a.j.JMeter: Max memory     =1073741824
+2023-12-07 11:54:54,202 INFO o.a.j.JMeter: Available Processors =8
+2023-12-07 11:54:54,206 INFO o.a.j.JMeter: Default Locale=English (EN)
+2023-12-07 11:54:54,206 INFO o.a.j.JMeter: JMeter  Locale=English (EN)
+2023-12-07 11:54:54,208 INFO o.a.j.JMeter: JMeterHome=D:\Program Files\apache-jmeter-5.6.2
+2023-12-07 11:54:54,208 INFO o.a.j.JMeter: user.dir  =D:\Work\Code\TicketSystem\jmeter
+2023-12-07 11:54:54,208 INFO o.a.j.JMeter: PWD       =D:\Work\Code\TicketSystem\jmeter
+2023-12-07 11:54:54,211 INFO o.a.j.JMeter: IP: 192.168.0.243 Name: 0HZ5L29I2EO0LZ2 FullName: windows10.microdone.cn
+2023-12-07 11:54:54,228 INFO o.a.j.s.FileServer: Default base='D:\Work\Code\TicketSystem\jmeter'
+2023-12-07 11:54:54,230 INFO o.a.j.s.FileServer: Set new base='D:\Work\Code\TicketSystem\jmeter'
+2023-12-07 11:54:54,391 INFO o.a.j.s.SaveService: Testplan (JMX) version: 2.2. Testlog (JTL) version: 2.2
+2023-12-07 11:54:54,410 INFO o.a.j.s.SaveService: Using SaveService properties file encoding UTF-8
+2023-12-07 11:54:54,414 INFO o.a.j.s.SaveService: Using SaveService properties version 5.0
+2023-12-07 11:54:54,419 INFO o.a.j.s.SaveService: Loading file: JDBC Request.jmx
+2023-12-07 11:54:54,480 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/html is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2023-12-07 11:54:54,480 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xhtml+xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2023-12-07 11:54:54,480 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2023-12-07 11:54:54,480 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2023-12-07 11:54:54,480 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/vnd.wap.wml is org.apache.jmeter.protocol.http.parser.RegexpHTMLParser
+2023-12-07 11:54:54,480 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/css is org.apache.jmeter.protocol.http.parser.CssParser
+2023-12-07 11:54:54,738 INFO o.a.j.JMeter: Creating summariser <summary>
+2023-12-07 11:54:54,748 INFO o.a.j.e.StandardJMeterEngine: Running the test!
+2023-12-07 11:54:54,749 INFO o.a.j.s.SampleEvent: List of sample_variables: []
+2023-12-07 11:54:54,749 INFO o.a.j.s.SampleEvent: List of sample_variables: []
+2023-12-07 11:54:54,758 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must contain the string: '.functions.'
+2023-12-07 11:54:54,758 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must not contain the string: '.gui.'
+2023-12-07 11:54:55,049 INFO o.a.j.r.ClassFinder: Will scan jar D:\Program Files\apache-jmeter-5.6.2\lib\ext\jmeter-plugins-manager-1.10.jar with filter ExtendsClassFilter [parents=[interface org.apache.jmeter.functions.Function], inner=false, contains=null, notContains=null]. Consider exposing JMeter plugins via META-INF/services, and add JMeter-Skip-Class-Scanning=true manifest attribute so JMeter can skip classfile scanning
+2023-12-07 11:54:55,185 INFO o.a.j.r.ClassFinder: Will scan jar D:\Program Files\apache-jmeter-5.6.2\lib\ext\mysql-connector-j-8.0.33.jar with filter ExtendsClassFilter [parents=[interface org.apache.jmeter.functions.Function], inner=false, contains=null, notContains=null]. Consider exposing JMeter plugins via META-INF/services, and add JMeter-Skip-Class-Scanning=true manifest attribute so JMeter can skip classfile scanning
+2023-12-07 11:54:55,405 INFO o.a.j.JMeter: Running test (1701921295405)
+2023-12-07 11:54:55,460 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 1 : Thread Group
+2023-12-07 11:54:55,460 INFO o.a.j.e.StandardJMeterEngine: Starting 1 threads for group Thread Group.
+2023-12-07 11:54:55,461 INFO o.a.j.e.StandardJMeterEngine: Thread will continue on error
+2023-12-07 11:54:55,461 INFO o.a.j.t.ThreadGroup: Starting thread group... number=1 threads=1 ramp-up=1 delayedStart=false
+2023-12-07 11:54:55,467 INFO o.a.j.t.ThreadGroup: Started thread group number 1
+2023-12-07 11:54:55,467 INFO o.a.j.e.StandardJMeterEngine: All thread groups have been started
+2023-12-07 11:54:55,470 INFO o.a.j.t.JMeterThread: Thread started: Thread Group 1-1
+2023-12-07 11:54:55,486 INFO o.a.j.p.h.s.HTTPHCAbstractImpl: Local host = 0HZ5L29I2EO0LZ2
+2023-12-07 11:54:55,491 INFO o.a.j.p.h.s.HTTPHC4Impl: HTTP request retry count = 0
+2023-12-07 11:54:55,493 INFO o.a.j.s.SampleResult: Note: Sample TimeStamps are START times
+2023-12-07 11:54:55,493 INFO o.a.j.s.SampleResult: sampleresult.default.encoding is set to UTF-8
+2023-12-07 11:54:55,493 INFO o.a.j.s.SampleResult: sampleresult.useNanoTime=true
+2023-12-07 11:54:55,493 INFO o.a.j.s.SampleResult: sampleresult.nanoThreadSleep=5000
+2023-12-07 11:54:55,609 INFO o.a.j.t.JMeterThread: Thread is done: Thread Group 1-1
+2023-12-07 11:54:55,609 INFO o.a.j.t.JMeterThread: Thread finished: Thread Group 1-1
+2023-12-07 11:54:55,611 INFO o.a.j.e.StandardJMeterEngine: Notifying test listeners of end of test
+2023-12-07 11:54:55,611 INFO o.a.j.r.Summariser: summary =      1 in 00:00:00 =    4.9/s Avg:    50 Min:    50 Max:    50 Err:     0 (0.00%)

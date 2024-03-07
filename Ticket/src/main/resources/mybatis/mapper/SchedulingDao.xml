@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ken.ticket.dao.SchedulingDao">
+    <!-- resultMap的使用，主要应用在Entity实体 Bean与数据库表不一致的情况 -->
+    <resultMap id="Scheduling" type="com.ken.common.entity.Scheduling">
+        <id column="id" property="id"/>
+        <result column="start" property="start" />
+        <result column="end" property="end"/>
+        <result column="price" property="price"/>
+        <result column="fid" property="film.id"/>
+        <result column="fname" property="film.name"/>
+        <result column="fdescr" property="film.descr"/>
+        <result column="rid" property="room.id"/>
+        <result column="rname" property="room.name"/>
+    </resultMap>
+
+    <!-- 定义公用的sql -->
+    <sql id="select" >
+        select scheduling.id as id,start,end,price,
+        film.id as fid, film.name as fname ,film.descr as fdescr ,
+        room.id as rid, room.name as rname
+        from film ,scheduling , room
+        WHERE scheduling.filmid = film.id AND scheduling.roomid = room.id
+    </sql>
+
+    <select id="byId" resultMap="Scheduling">
+        <include refid="select"/>
+        and scheduling.id=#{id}
+    </select>
+    <select id="list" resultMap="Scheduling" >
+        <include refid="select"/>
+        <if test="id!=null"> and scheduling.id= #{id} </if>
+    </select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO scheduling(filmid,roomid,price,`start`,`end`)
+        VALUES (#{film.id},#{room.id},#{price},#{start},#{end} )
+    </insert>
+</mapper>

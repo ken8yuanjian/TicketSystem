@@ -1,0 +1,28 @@
+将服务打包成docker
+1、编译服务的jar包,如 x.jar ；
+2、编写Dockerfile文件，文件名为Dockerfile，内容见如下:
+
+# 基于java基础镜像创建新的docker镜像
+FROM openjdk:8u342
+# 作者
+MAINTAINER ken
+#从构建主机复制文件到镜像中
+#COPY <src> <dest>
+#<src>：要复制的源文件或目录，支持通配符,<src>必须在build所在路径或子路径下，不能是其父目录
+#<src>是目录。其内部的文件和子目录都会递归复制，但<src>目录本身不会被复制
+#如果指定了多个<src>或使用了通配符，这<dest>必须是一个目录，且必须以/结尾
+#<dest>：目标路径，即镜像中文件系统的路径
+#<dest>如果不存在会自动创建，包含其父目录路径也会被创建
+
+ADD  x.jar /usr/local/x.jar
+# 运行镜像中的jar包
+ENTRYPOINT ["java","-jar","/usr/local/x.jar"]
+
+3、将Dockerfile、x.jar上传至有docker环境的服务器上；
+4、运行 docker build -t dockertest .  命令打包docker镜像，其中 -t 表示docker的镜像名称，
+   . 表示当前目录下（当前目录就是存放Dockerfile和x.jar的目录）。等待打包过程完成，需联网。
+   如成功通过docker images命令即能查到到刚打包的dockettest镜像。
+5、运行命令启动docker镜像即可 docker run --name dockertest --restart=always -p 8990:8990 -d dockertest
+   --restart=always 表示随docker自动重启
+   -p 8990:8990 表示将docker内部端口映射到宿主机上
+   -d 表示后台运行

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ken.user.dao.UserDao">
+    <!-- select 的输入参数，如果是一个对象，直接使用属性就可以-->
+    <select id="list" resultType="com.ken.common.entity.User" >
+        select * from user
+        <!-- 动态参数 -->
+        <where>
+            <if test="id!=null"> or id= #{id} </if>
+            <if test="username!=null">or username like #{username} </if>
+            <if test="name!=null">or name like #{name} </if>
+        </where>
+    </select>
+</mapper>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ken.user.dao.RoleDao">
+    <select id="listByUserId" resultType="com.ken.common.entity.Role">
+        select id,`name`FROM role WHERE id IN
+        (SELECT roleid FROM user_role WHERE userid =#{userid})
+    </select>
+
+</mapper>

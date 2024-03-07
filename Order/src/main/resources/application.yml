@@ -1,0 +1,61 @@
+server:
+  port: 8920
+
+spring:
+  application:
+    name: orderservice
+  datasource:
+    username: root
+    password: 123456
+    url: jdbc:mysql://localhost:3306/ticketsystem
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+    #   数据源其他配置
+    initialSize: 5
+    minIdle: 5
+    maxActive: 20
+    maxWait: 60000
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: SELECT 1 FROM DUAL
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+    #   配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
+    filters: stat,wall
+    maxPoolPreparedStatementPerConnectionSize: 20
+    useGlobalDataSourceStat: true
+    connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=500
+
+  #使用nacos注册中心的配置
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+
+
+#eureka:
+#  instance:
+#    prefer-ip-address: true
+#  client:
+#    service-url:
+#      #此处如果实现了eureka 的高可用，则用","分隔，同时注册到多个eureka server上
+#      defaultZone: http://localhost:8910/eureka/
+#mybatis 使用 xml配置文件方式，而非注解方式，注解方式参见 FilmDao.java
+#注解版和配置文件版是可以混合使用的（在不同的Mapper类中）
+#mybatis:
+#  config-location: classpath:mybatis/mybatis-config.xml
+#  mapper-locations: classpath:mybatis/mapper/*.xml
+
+#启用mybatis-plus后，需要装配mybatis-plus的对象，不能只配置mybaits
+mybatis-plus:
+  mapper-locations: classpath:mybatis/mapper/*.xml
+  config-location: classpath:mybatis/mybatis-config.xml
+
+
+feign:
+  circuitbreaker:
+    enabled: true
+
+

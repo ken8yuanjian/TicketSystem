@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ken.user.dao.PermissionDao">
+    <select id="listByUserId" resultType="com.ken.common.entity.Permission">
+        select id,`name`FROM permission WHERE id IN
+        ( SELECT  permissionid FROM role_permission WHERE roleid IN
+        (SELECT roleid FROM user_role WHERE userid =#{userid}) )
+    </select>
+
+</mapper>

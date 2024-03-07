@@ -1,0 +1,13 @@
+server:
+  port: 8910
+eureka:
+  instance:
+    hostname: eureka-server
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+    service-url:
+      defaultZone: http://localhost:8900/eureka/
+
+#eureka server 的高可用通过server的相互注册配置实现，相互注册的server之间也会保持同步
+#微服务通过配置同时注册到多个eureka server，以便实现eureka的高可用

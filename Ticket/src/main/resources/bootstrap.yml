@@ -1,0 +1,13 @@
+#spring:
+#  application:
+#    name: ticketservice
+#  cloud:
+##使用nacos进行配置管理
+#    nacos:
+#      config:
+#        server-addr: localhost:8848
+#        file-extension: yaml
+#  profiles: #支持多环境
+#    active: dev #暂定为开发环境
+
+

@@ -1,0 +1,60 @@
+server:
+  port: 8900
+
+spring:
+  #激活配置
+  profiles:
+    active: dev
+  application:
+    name: gateway
+  #使用redis配置
+  redis:
+    host: localhost
+    password: 123456
+  cloud:
+    gateway:
+      routes:
+        - id: ticket-film
+          #uri设置可以直接使用ip实现映射 ，也可以通过注册中心通过服务名实现映射，书写格式lb://服务名（需要配置注册中心）
+          uri: lb://ticketservice
+          predicates:
+            - Path=/film/**
+        - id: ticket-room
+          uri: lb://ticketservice
+          predicates:
+            - Path=/room/**
+        - id: ticket-scheduling
+          uri: lb://ticketservice
+          predicates:
+            - Path=/scheduling/**
+        - id: order
+          uri: lb://orderservice
+          predicates:
+            - Path=/order/**
+        - id: users
+          uri: lb://userservice
+          predicates:
+            - Path=/users/**
+            - Path=/login/**
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+    #使用nacos注册中心的配置
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+#网关高可用方案
+#结合nginx，通过ngix端口映射到多个网关上（nginx的配置文件），可实现网关的高可用和负载均衡
+#问题出来了，那么nginx有会出现高可用的问题了，怎么办？
+#1、nginx非常稳定，出错概率会比普通网关程序小的多
+#2、nginx + keepalive + vip 三个方案组合成了nginx的高可用方案
+
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    service-url:
+      #此处如果实现了eureka 的高可用，则用","分隔，同时注册到多个eureka server上
+      defaultZone: http://localhost:8910/eureka/

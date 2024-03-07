@@ -1,0 +1,232 @@
+node {
+    //选择的项目信息数组
+    def projectName="${project_name}".trim()
+    def selectedProjects = projectName.split(',')
+    def branch="${project_branch}"
+    def env="${project_env}".trim()
+    def basepath=WORKSPACE
+
+    def componentServerMap=['10.10.1.182':"10.10.1.181","10.10.1.172":"10.10.1.171","10.10.1.175":"10.10.1.174","192.168.20.172":"192.168.20.171","10.10.1.184":"10.10.1.183"]
+    def applicationServerMap=['10.10.1.182':"10.10.1.182","10.10.1.172":"10.10.1.172","10.10.1.175":"10.10.1.175","192.168.20.172":"192.168.20.172","10.10.1.184":"10.10.1.184"]
+
+    def componentServer=[:]
+    componentServer.name=componentServerMap.get(env)
+    componentServer.host=componentServerMap.get(env)
+    componentServer.port=22
+    componentServer.allowAnyHosts =true
+
+    def applicationServer=[:]
+    applicationServer.name=applicationServerMap.get(env)
+    applicationServer.host=applicationServerMap.get(env)
+    applicationServer.port=22
+    applicationServer.allowAnyHosts =true
+
+    withCredentials([usernamePassword(credentialsId: 'server-password', passwordVariable: 'password', usernameVariable: 'userName')]) {
+        componentServer.user = "${userName}"
+        componentServer.password = "${password}"
+    }
+
+    withCredentials([usernamePassword(credentialsId: 'server-password', passwordVariable: 'password', usernameVariable: 'userName')]) {
+        applicationServer.user = "${userName}"
+        applicationServer.password = "${password}"
+    }
+
+    def baseServiceList=["resafety-auth","resafety-log","resafety-gateway"]
+    def serviceList=["resafety-builder-application","resafety-builder-assembly","resafety-builder-resource","resafety-builder-datacenter","resafety-builder-release","resafety-builder-asset","twin-cloud-account","twin-cloud-application","twin-cloud-data","twin-cloud-data-proxy","twin-cloud-effect","twin-cloud-layer","twin-cloud-resource","twin-cloud-guide3d","twin-cloud-gis3d","twin-cloud-layer3d","twin-cloud-search3d"]
+    
+    stage('拉取代码') {
+        checkout([$class: 'GitSCM', branches: [[name: "*/${branch}"]], extensions: [], userRemoteConfigs: [[credentialsId: 'gitlab-login', url: 'https://resafety.com/gitlab/v3/resafety-deeptwin.git']]])
+        echo "成功拉取git代码！"
+    }
+
+    stage('编译代码工程') {
+        //编译并安装公共工程
+        sh "cd ${basepath}/common && mvn clean install -Dmaven.test.skip=true "
+        sh "cd ${basepath} && mvn clean package -Dmaven.test.skip=true "
+        echo "成功编译代码工程！"
+    }
+
+    stage('推送服务') {
+        //推送服务
+        if("all".equals(projectName)){
+            echo "推送全部服务"
+            for(int i=0; i < baseServiceList.size(); i++){
+                def gName = baseServiceList[i].trim()
+                def serverName=componentServer.host
+                fileName = sh returnStdout: true ,script: "find ./ -name ${gName}*.jar"
+                fileName = fileName.trim()
+                def parentPath=fileName.substring(0,fileName.lastIndexOf("/")+1)
+                sshPublisher(publishers: [sshPublisherDesc(configName: "${serverName}", transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '/deepbuilder/build/jar/', remoteDirectorySDF: false, removePrefix: "${parentPath}", sourceFiles: "**/**/${gName}*.jar")], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: true)])
+            }
+            for(int i=0; i < serviceList.size(); i++){
+                def gName = serviceList[i].trim()
+                def serverName=applicationServer.host
+                fileName = sh returnStdout: true ,script: "find ./ -name ${gName}*.jar"
+                fileName = fileName.trim()
+                def parentPath=fileName.substring(0,fileName.lastIndexOf("/")+1)
+                sshPublisher(publishers: [sshPublisherDesc(configName: "${serverName}", transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '/deepbuilder/build/jar/', remoteDirectorySDF: false, removePrefix:  "${parentPath}", sourceFiles: "**/**/${gName}*.jar")], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: true)])
+            }
+        }else{
+             for(int i=0; i < selectedProjects.size(); i++){
+                def gName = selectedProjects[i].trim()
+                fileName = sh returnStdout: true ,script: "find ./ -name ${gName}*.jar"
+                fileName = fileName.trim()
+                def parentPath=fileName.substring(0,fileName.lastIndexOf("/")+1)
+                if(baseServiceList.contains(gName)){
+                    def serverName=componentServer.host
+                    sshPublisher(publishers: [sshPublisherDesc(configName: "${serverName}", transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '/deepbuilder/build/jar', remoteDirectorySDF: false, removePrefix: "${parentPath}", sourceFiles: "**/**/${gName}*.jar")], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+                }else{
+                    def serverName=applicationServer.host
+                    sshPublisher(publishers: [sshPublisherDesc(configName: "${serverName}", transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '/deepbuilder/build/jar', remoteDirectorySDF: false, removePrefix: "${parentPath}", sourceFiles: "**/**/${gName}*.jar")], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+                }
+
+            }
+        }
+        echo "推送服务成功"
+    }
+
+    stage('启动对应服务') {
+        sshCommand remote: componentServer, command: '''
+            bashpath="/deepbuilder/build/jar"
+            cd $bashpath
+            backup_time=`date +%Y%m%d%H%M`
+            installPath=/deepbuilder
+            function exits(){
+                file_pattern=$1
+                file_count=$(ls -1 $file_pattern 2>/dev/null | wc -l)
+                # 检查文件数量
+                echo $file_count
+
+            }
+
+            function updateService(){
+                jarName=$1
+                folder=$2
+                local exsitResult=$( echo  `exits $jarName` )
+                if [ $exsitResult  -gt 0 ] ; then
+                    cp $installPath/$folder/$jarName  $installPath/$folder/$jarName"-"$backup_time
+                    mv $jarName $installPath/$folder/$jarName
+                    cd $installPath/$folder/
+                    docker-compose restart
+                    cd $bashpath
+                fi 
+            }
+
+
+            updateWebtoolFlag=0
+
+            function updateWebtool(){
+                jarName=$1
+                folder=$2
+                local exsitResult=$( echo  `exits $jarName` )
+                if [ $exsitResult -gt 0 ] ; then
+                    cp $installPath/$folder/$jarName  $installPath/$folder/$jarName"-"$backup_time
+                    mv $jarName $installPath/$folder/$jarName
+                    cd $installPath/$folder/
+                    updateWebtoolFlag=1
+                    cd $bashpath
+                fi 
+            }
+
+            updateService 'resafety-auth.jar' 'auth'
+            updateService 'resafety-log.jar' 'log'
+            updateService 'resafety-gateway.jar' 'gateway'
+            updateService 'resafety-builder-application.jar' 'deepbuilder-application'
+            updateService 'resafety-builder-assembly.jar' 'deepbuilder-assembly'
+            updateService 'resafety-builder-asset.jar' 'deepbuilder-asset'
+            updateService 'resafety-builder-datacenter.jar' 'deepbuilder-datacenter'
+            updateService 'resafety-builder-release.jar' 'deepbuilder-release'
+            updateService 'resafety-builder-resource.jar' 'deepbuilder-resource'
+            updateService 'twin-cloud-account-1.0.0.jar' 'twin-cloud-account'
+            updateService 'twin-cloud-application-1.0.0.jar' 'twin-cloud-application'
+            updateService 'twin-cloud-data-proxy-1.0.0.jar' 'twin-cloud-data-proxy'
+            updateService 'twin-cloud-data-1.0.0.jar' 'twin-cloud-data'
+            updateService 'twin-cloud-effect-1.0.0.jar' 'twin-cloud-effect'
+            updateService 'twin-cloud-layer-1.0.0.jar' 'twin-cloud-layer'
+            updateService 'twin-cloud-resource-1.0.0.jar' 'twin-cloud-resource'
+
+            updateWebtool 'twin-cloud-gis3d.jar' 'twin-cloud-service-webtool'
+            updateWebtool 'twin-cloud-guide3d.jar' 'twin-cloud-service-webtool'
+            updateWebtool 'twin-cloud-layer3d.jar' 'twin-cloud-service-webtool'
+            updateWebtool 'twin-cloud-search3d.jar' 'twin-cloud-service-webtool'
+
+            if [ $updateWebtoolFlag -gt 0 ] ; then
+                cd $installPath/twin-cloud-service-webtool/
+                docker-compose restart
+                cd $bashpath
+            fi
+       '''
+       sshCommand remote: applicationServer, command: '''
+            bashpath="/deepbuilder/build/jar"
+            cd $bashpath
+
+            installPath=/deepbuilder
+            function exits(){
+                file_pattern=$1
+                file_count=$(ls -1 $file_pattern 2>/dev/null | wc -l)
+                # 检查文件数量
+                echo $file_count
+
+            }
+
+            function updateService(){
+                jarName=$1
+                folder=$2
+                local exsitResult=$( echo  `exits $jarName` )
+                if [ $exsitResult  -gt 0 ] ; then
+                    cp $installPath/$folder/$jarName  $installPath/$folder/$jarName"_bak"
+                    mv $jarName $installPath/$folder/$jarName
+                    cd $installPath/$folder/
+                    docker-compose restart
+                    cd $bashpath
+                fi 
+            }
+
+
+            updateWebtoolFlag=0
+
+            function updateWebtool(){
+                jarName=$1
+                folder=$2
+                local exsitResult=$( echo  `exits $jarName` )
+                if [ $exsitResult -gt 0 ] ; then
+                    cp $installPath/$folder/$jarName  $installPath/$folder/$jarName"_bak"
+                    mv $jarName $installPath/$folder/$jarName
+                    cd $installPath/$folder/
+                    updateWebtoolFlag=1
+                    cd $bashpath
+                fi 
+            }
+
+            updateService 'resafety-auth.jar' 'auth'
+            updateService 'resafety-log.jar' 'log'
+            updateService 'resafety-gateway.jar' 'gateway'
+            updateService 'resafety-builder-application.jar' 'deepbuilder-application'
+            updateService 'resafety-builder-assembly.jar' 'deepbuilder-assembly'
+            updateService 'resafety-builder-asset.jar' 'deepbuilder-asset'
+            updateService 'resafety-builder-datacenter.jar' 'deepbuilder-datacenter'
+            updateService 'resafety-builder-release.jar' 'deepbuilder-release'
+            updateService 'resafety-builder-resource.jar' 'deepbuilder-resource'
+            updateService 'twin-cloud-account-1.0.0.jar' 'twin-cloud-account'
+            updateService 'twin-cloud-application-1.0.0.jar' 'twin-cloud-application'
+            updateService 'twin-cloud-data-1.0.0.jar' 'twin-cloud-data'
+            updateService 'twin-cloud-data-proxy-1.0.0.jar' 'twin-cloud-data-proxy'
+            updateService 'twin-cloud-effect-1.0.0.jar' 'twin-cloud-effect'
+            updateService 'twin-cloud-layer-1.0.0.jar' 'twin-cloud-layer'
+            updateService 'twin-cloud-resource-1.0.0.jar' 'twin-cloud-resource'
+
+            updateWebtool 'twin-cloud-gis3d.jar' 'twin-cloud-service-webtool'
+            updateWebtool 'twin-cloud-guide3d.jar' 'twin-cloud-service-webtool'
+            updateWebtool 'twin-cloud-layer3d.jar' 'twin-cloud-service-webtool'
+            updateWebtool 'twin-cloud-search3d.jar' 'twin-cloud-service-webtool'
+
+            if [ $updateWebtoolFlag -gt 0 ] ; then
+                cd $installPath/twin-cloud-service-webtool/
+                docker-compose restart
+                cd $bashpath
+            fi
+       '''
+       echo "${selectedProjects}服务更新完成"
+    }
+
+}
