@@ -3,6 +3,7 @@ package com.ken.user.controller;
 import com.ken.common.cache.MyCache;
 import com.ken.common.entity.http.ResultBase;
 import com.ken.user.entity.SessionData;
+import com.ken.user.property.CustomProperty;
 import com.ken.user.service.UserService;
 import com.ken.user.thread.RedisRWThread;
 import io.swagger.annotations.ApiOperation;
@@ -24,6 +25,9 @@ public class LoginController {
 
     @Autowired
     MyCache myCache;
+
+    @Autowired
+    CustomProperty customProperty;
 
     @ApiOperation("登录接口")
     @GetMapping ("")
