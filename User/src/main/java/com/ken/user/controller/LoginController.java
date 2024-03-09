@@ -3,7 +3,6 @@ package com.ken.user.controller;
 import com.ken.common.cache.MyCache;
 import com.ken.common.entity.http.ResultBase;
 import com.ken.user.entity.SessionData;
-import com.ken.user.property.CustomProperty;
 import com.ken.user.service.UserService;
 import com.ken.user.thread.RedisRWThread;
 import io.swagger.annotations.ApiOperation;
@@ -17,6 +16,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 @RestController
 @RequestMapping("/login")
 public class LoginController {
@@ -25,9 +28,6 @@ public class LoginController {
 
     @Autowired
     MyCache myCache;
-
-    @Autowired
-    CustomProperty customProperty;
 
     @ApiOperation("登录接口")
     @GetMapping ("")
@@ -51,8 +51,33 @@ public class LoginController {
     @GetMapping("/thread")
     @RequiresGuest
     public ResultBase thread(){
+
         Thread thread = new Thread( new RedisRWThread(myCache) );
         thread.start();
         return ResultBase.success(thread.toString());
+    }
+    @GetMapping("/setcookie")
+    @RequiresGuest
+    public ResultBase setcookie(HttpServletResponse response){
+        Cookie[] cookies = {new Cookie("ca","va"),
+                new Cookie("cb","vb")};
+        String str="";
+        for (Cookie cookie : cookies) {
+            str = str + cookie.getName() + " = " + cookie.getValue() + " , ";
+            response.addCookie(cookie);
+        }
+        return ResultBase.success("set cookie: " + str);
+    }
+    @GetMapping("/getcookie")
+    @RequiresGuest
+    public ResultBase getcookie(HttpServletRequest request){
+        Cookie[] cookies = request.getCookies();
+        String str="";
+        if (null != cookies) {
+            for (Cookie cookie : cookies) {
+                str = str + cookie.getName() + " = " + cookie.getValue() + " , ";
+            }
+        }
+        return ResultBase.success("get cookie: "+str);
     }
 }

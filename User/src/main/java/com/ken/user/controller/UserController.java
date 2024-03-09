@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 
 @RestController
+@RequestMapping("/users")
 public class UserController {
     @Autowired
     UserService userService;
@@ -19,27 +20,27 @@ public class UserController {
     MyCache myCache;
 
     // restful 标准 实现
-    @GetMapping("/users")
+    @GetMapping("")
     @RequiresPermissions("userservice:user:query")
     public ResultBase<ArrayList<User>> get(User user)
     {
         return userService.list(user);
     }
-    @GetMapping("/users/{id}")
+    @GetMapping("/{id}")
     @RequiresPermissions("userservice:user:query")
     public ResultBase< User > get(@PathVariable Integer id)
     {
         return userService.byId(id);
     }
 
-    @PutMapping("/users")
+    @PutMapping("")
     @RequiresPermissions("userservice:user:insert")
     public ResultBase<User> put(User user)
     {
         return userService.insert(user);
     }
 
-    @DeleteMapping ("/users/{id}")
+    @DeleteMapping ("/{id}")
     @RequiresPermissions("userservice:user:delete")
     public ResultBase< User > delete(@PathVariable Integer id)
     {
