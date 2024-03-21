@@ -14,6 +14,7 @@ spring:
   cloud:
     gateway:
       routes:
+        #tikcet 服务
         - id: ticket-film
           #uri设置可以直接使用ip实现映射 ，也可以通过注册中心通过服务名实现映射，书写格式lb://服务名（需要配置注册中心）
           uri: lb://ticketservice
@@ -27,15 +28,24 @@ spring:
           uri: lb://ticketservice
           predicates:
             - Path=/scheduling/**
+        #order 服务
         - id: order
           uri: lb://orderservice
           predicates:
             - Path=/order/**
-        - id: users
+        #user 服务
+        - id: users-users
           uri: lb://userservice
           predicates:
             - Path=/users/**
+        - id: users-login
+          uri: lb://userservice
+          predicates:
             - Path=/login/**
+        - id: users-otp
+          uri: lb://userservice
+          predicates:
+            - Path=/otp/**
       discovery:
         locator:
           enabled: true

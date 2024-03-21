@@ -7,6 +7,7 @@ import com.ken.user.service.UserService;
 import com.ken.user.thread.RedisRWThread;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.models.auth.In;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresGuest;
 import org.apache.shiro.session.Session;
@@ -19,6 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 @RestController
 @RequestMapping("/login")
@@ -71,6 +76,13 @@ public class LoginController {
     @GetMapping("/getcookie")
     @RequiresGuest
     public ResultBase getcookie(HttpServletRequest request){
+        ArrayList<Integer> x = new ArrayList<>();
+        Iterator<Integer> it =x.iterator();
+        while (it.hasNext()){
+
+        }
+        String uri = request.getRequestURI();
+        String url = request.getRequestURL().toString();
         Cookie[] cookies = request.getCookies();
         String str="";
         if (null != cookies) {
@@ -79,5 +91,14 @@ public class LoginController {
             }
         }
         return ResultBase.success("get cookie: "+str);
+    }
+    @GetMapping("/httpsession")
+    @RequiresGuest
+    public ResultBase httpsession(HttpServletRequest request){
+        HttpSession session = request.getSession() ;
+        Object obj = session.getAttribute("x");
+        if (obj == null)
+            session.setAttribute("x","hello session");
+        return ResultBase.success("httpsession");
     }
 }

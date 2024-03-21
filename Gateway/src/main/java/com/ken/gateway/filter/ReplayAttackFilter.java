@@ -1,6 +1,7 @@
 package com.ken.gateway.filter;
 
 import com.ken.common.cache.MyCache;
+import com.ken.common.cache.MyCachePrefix;
 import com.ken.common.entity.http.ResultBase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -41,15 +42,15 @@ public class ReplayAttackFilter implements GlobalFilter , Ordered {
             for (byte b:hash) {
                 stringBuilder.append(String.format("%02x",b));
             }
-            String hashString = stringBuilder.toString();
-            String value = myCache.getForValue(hashString);
+            String key = MyCachePrefix.url( stringBuilder.toString() );
+            String value = myCache.getForValue(key);
             if (null != value){//认定重放攻击
                 System.out.println("检测到重放攻击...");
                 resp.setStatusCode(HttpStatus.FORBIDDEN);
                 return resp.setComplete();
             }else{
-                myCache.setForValue(hashString,"exist"); //缓存URL
-                myCache.expire(hashString,10); //10秒之内访问为重放攻击
+                myCache.setForValue(key,"exist"); //缓存URL
+                myCache.expire(key,10); //10秒之内访问为重放攻击
             }
         }catch (NoSuchAlgorithmException e){
 

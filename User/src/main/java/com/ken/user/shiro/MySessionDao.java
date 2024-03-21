@@ -1,6 +1,7 @@
 package com.ken.user.shiro;
 
 import com.ken.common.cache.MyCache;
+import com.ken.common.cache.MyCachePrefix;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.session.UnknownSessionException;
 import org.apache.shiro.session.mgt.SimpleSession;
@@ -27,8 +28,9 @@ public class MySessionDao extends EnterpriseCacheSessionDAO {
             return;
         Boolean authen = (Boolean) session.getAttribute(DefaultSubjectContext.AUTHENTICATED_SESSION_KEY);
         if (null != authen && authen.booleanValue()) {   //认证的session 更新到redis共享
-            myCache.setForValue(session.getId(),session);
-            myCache.expire(session.getId(), session.getTimeout()/1000 );
+            String key = MyCachePrefix.sessionid(session.getId().toString());
+            myCache.setForValue(key,session);
+            myCache.expire(key, session.getTimeout()/1000 );
         }
     }
 }

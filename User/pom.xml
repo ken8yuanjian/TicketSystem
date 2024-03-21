@@ -76,6 +76,12 @@
             <artifactId>shiro-spring-boot-web-starter</artifactId>
             <version>1.9.1</version>
         </dependency>
+        <!-- 引入quartz任务调度框架-->
+        <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz</artifactId>
+            <version>2.3.0</version>
+        </dependency>
         <!--引入swagger支持-->
         <dependency>
             <groupId>io.springfox</groupId>
@@ -87,6 +93,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
+        </dependency>
+        <!-- 引入验证码 -->
+        <dependency>
+            <groupId>com.github.whvcse</groupId>
+            <artifactId>easy-captcha</artifactId>
+            <version>1.6.2</version>
         </dependency>
 
         <dependency>

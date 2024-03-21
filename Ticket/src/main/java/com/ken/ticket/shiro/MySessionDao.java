@@ -1,6 +1,7 @@
 package com.ken.ticket.shiro;
 
 import com.ken.common.cache.MyCache;
+import com.ken.common.cache.MyCachePrefix;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.session.InvalidSessionException;
 import org.apache.shiro.session.Session;
@@ -60,8 +61,9 @@ public class MySessionDao extends EnterpriseCacheSessionDAO {
             return;
         Boolean authen = (Boolean) session.getAttribute(DefaultSubjectContext.AUTHENTICATED_SESSION_KEY);
         if (null != authen && authen.booleanValue()) {   //认证的session 更新到redis共享
-            myCache.setForValue(session.getId(),session);
-            myCache.expire(session.getId(), session.getTimeout()/1000 );
+            String key = MyCachePrefix.sessionid(session.getId().toString());
+            myCache.setForValue(key,session);
+            myCache.expire(key, session.getTimeout()/1000 );
         }
     }
 

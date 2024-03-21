@@ -13,6 +13,17 @@ import java.util.ArrayList;
 @RestController
 @RequestMapping("/users")
 public class UserController {
+    /*
+    volatile 防止指令重排和保证可见性
+    多个线程并发的时候，可能有多个线程同时发现 accessThread==null，
+    同时分配内存并赋值，就出现了多线程安全问题，volatile保证这种情况不会发生
+
+    另外 accssThread赋值时，仍有可能发生多线程安全问题，因为 volatile不保证原子性，
+    所以仍需结合 synchronized 或 Lock 对 accessThread进行赋值，保证原子性.
+     */
+    public volatile ArrayList<Integer> accessThread; //记录访问过此Controller的线程；
+
+
     @Autowired
     UserService userService;
 
@@ -24,8 +35,10 @@ public class UserController {
     @RequiresPermissions("userservice:user:query")
     public ResultBase<ArrayList<User>> get(User user)
     {
+
         return userService.list(user);
     }
+
     @GetMapping("/{id}")
     @RequiresPermissions("userservice:user:query")
     public ResultBase< User > get(@PathVariable Integer id)
